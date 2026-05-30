@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cas — творю чудеса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Suisse+Int%27l:wght@300;400&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ee;
+    --text: #1a1916;
+    --muted: #8a8880;
+    --accent: #1a1916;
+    --border: rgba(26,25,22,0.12);
+    --card: #fff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.6;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--text);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid var(--text);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    transform: translate(-50%, -50%);
+    opacity: 0.4;
+  }
+  .cursor-ring.hover { width: 48px; height: 48px; opacity: 0.2; }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px;
+    mix-blend-mode: normal;
+  }
+
+  .nav-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-number {
+    position: absolute;
+    top: 50%;
+    right: 48px;
+    transform: translateY(-50%);
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(180px, 25vw, 320px);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(26,25,22,0.07);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    max-width: 700px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.4s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .hero-desc {
+    margin-top: 32px;
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 360px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.6s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 48px;
+    display: flex; gap: 20px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.8s forwards;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.8; }
+
+  .btn-secondary {
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+
+  /* Marquee */
+  .marquee-wrap {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 16px 0;
+    background: var(--bg);
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marquee 18s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 32px;
+    white-space: nowrap;
+  }
+  .marquee-item span {
+    margin-right: 32px;
+    color: var(--border);
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Section */
+  section { padding: 100px 48px; }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 60px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Work */
+  .work-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .work-card {
+    background: var(--card);
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .work-card:hover { background: #f0ede7; }
+
+  .work-card-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .work-card-type {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .work-card-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .work-card-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 280px;
+  }
+
+  .work-card-arrow {
+    position: absolute;
+    bottom: 40px; right: 40px;
+    font-size: 20px;
+    opacity: 0;
+    transform: translate(-6px, 6px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .work-card:hover .work-card-arrow { opacity: 1; transform: translate(0, 0); }
+
+  .work-card-tag {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  /* About */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .about-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+  .about-title em { font-style: italic; color: var(--muted); }
+
+  .about-body {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .skills-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    list-style: none;
+  }
+  .skills-list li {
+    font-size: 12px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 2px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    padding: 40px;
+  }
+
+  .stat-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* Contact */
+  .contact-section {
+    background: var(--text);
+    color: var(--bg);
+    padding: 100px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-section .section-label {
+    color: rgba(245,243,238,0.35);
+  }
+  .contact-section .section-label::after {
+    background: rgba(245,243,238,0.12);
+  }
+
+  .contact-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(44px, 6vw, 80px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 600px;
+    margin-bottom: 48px;
+  }
+  .contact-title em { font-style: italic; color: rgba(245,243,238,0.4); }
+
+  .contact-links {
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+
+  .contact-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    border: 1px solid rgba(245,243,238,0.2);
+    border-radius: 2px;
+    color: var(--bg);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .contact-link:hover {
+    background: rgba(245,243,238,0.08);
+    border-color: rgba(245,243,238,0.4);
+  }
+
+  .contact-bg-text {
+    position: absolute;
+    bottom: -20px; right: 48px;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(100px, 15vw, 200px);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(245,243,238,0.05);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Footer */
+  footer {
+    padding: 32px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 0 24px 60px; }
+    .hero-number { font-size: 140px; right: 24px; }
+    section { padding: 60px 24px; }
+    .work-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .contact-section { padding: 60px 24px; }
+    footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="#" class="nav-logo">CAS</a>
+  <ul class="nav-links">
+    <li><a href="#work">Работы</a></li>
+    <li><a href="#about">О себе</a></li>
+    <li><a href="#contact">Контакт</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-number">М</div>
+  <p class="hero-tag">Вайб-разработчик · Россия · 2025</p>
+  <h1 class="hero-title">Cas —<br><em>творю чудеса</em><br>или что-то<br>похожее</h1>
+  <p class="hero-desc">Делаю сайты и Telegram-боты. Малый бизнес, стартапы, личные проекты. Чисто, быстро, под ключ.</p>
+  <div class="hero-cta">
+    <a href="#contact" class="btn-primary">Написать →</a>
+    <a href="#work" class="btn-secondary">Посмотреть работы</a>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item">Сайты <span>✦</span></div>
+    <div class="marquee-item">Telegram-боты <span>✦</span></div>
+    <div class="marquee-item">Лендинги <span>✦</span></div>
+    <div class="marquee-item">Быстро <span>✦</span></div>
+    <div class="marquee-item">Чисто <span>✦</span></div>
+    <div class="marquee-item">Под ключ <span>✦</span></div>
+    <div class="marquee-item">Сайты <span>✦</span></div>
+    <div class="marquee-item">Telegram-боты <span>✦</span></div>
+    <div class="marquee-item">Лендинги <span>✦</span></div>
+    <div class="marquee-item">Быстро <span>✦</span></div>
+    <div class="marquee-item">Чисто <span>✦</span></div>
+    <div class="marquee-item">Под ключ <span>✦</span></div>
+  </div>
+</div>
+
+<section id="work">
+  <p class="section-label reveal">Работы</p>
+  <div class="work-grid">
+
+    <a href="https://t.me/ManicureStudioBot" class="work-card reveal" target="_blank">
+      <p class="work-card-num">01</p>
+      <p class="work-card-type">Telegram-бот</p>
+      <h3 class="work-card-title">Бот для записи<br>в nail-салон</h3>
+      <p class="work-card-desc">Полноценный бот с выбором услуг, записью на дату/время, админ-панелью, портфолио и базой данных. Развёрнут на launchd.</p>
+      <span class="work-card-tag">Python · python-telegram-bot · SQLite</span>
+      <span class="work-card-arrow">↗</span>
+    </a>
+
+    <a href="https://cas530.github.io/obrazy-rossii/" class="work-card reveal" target="_blank">
+      <p class="work-card-num">02</p>
+      <p class="work-card-type">Сайт</p>
+      <h3 class="work-card-title">Образы России<br>Живая галерея</h3>
+      <p class="work-card-desc">Цифровая галерея культурного кода России: архетипы, промыслы, природа, инфографика и викторина. Чистая вёрстка.</p>
+      <span class="work-card-tag">HTML · CSS · JS · Chart.js</span>
+      <span class="work-card-arrow">↗</span>
+    </a>
+
+    <a href="cafe-brut.html" class="work-card reveal">
+      <p class="work-card-num">03</p>
+      <p class="work-card-type">Сайт</p>
+      <h3 class="work-card-title">Café Brut —<br>лендинг для кафе</h3>
+      <p class="work-card-desc">Полноценный кейс: от брифа до деплоя за 3 дня. Форма бронирования, аналитика, отзыв клиента.</p>
+      <span class="work-card-tag">HTML · CSS · JS · Telegram API</span>
+      <span class="work-card-arrow">↗</span>
+    </a>
+
+    <a href="stroydom.html" class="work-card reveal">
+      <p class="work-card-num">04</p>
+      <p class="work-card-type">Сайт</p>
+      <h3 class="work-card-title">СтройДом —<br>коттеджи под ключ</h3>
+      <p class="work-card-desc">Сайт строительной компании: проекты домов, материалы, цены, калькулятор, отзывы и FAQ.</p>
+      <span class="work-card-tag">HTML · CSS · JS</span>
+      <span class="work-card-arrow">↗</span>
+    </a>
+
+  </div>
+
+  <div class="stats-row reveal">
+    <div class="stat-card">
+      <p class="stat-num">4</p>
+      <p class="stat-label">Проекта сдано</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-num">48ч</p>
+      <p class="stat-label">Среднее время сдачи</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-num">2</p>
+      <p class="stat-label">Довольных клиента<br><span style="font-size:11px;color:var(--muted)">(и это только начало)</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="about" style="background: var(--card);">
+  <p class="section-label reveal">О себе</p>
+  <div class="about-grid">
+    <div>
+      <h2 class="about-title reveal">Делаю то, что<br>работает.<br><em>Без лишнего.</em></h2>
+    </div>
+    <div class="reveal">
+      <p class="about-body">Привет, я Cas. Собираю сайты и Telegram-боты. В портфолио — бот для записи в nail-салон с админ-панелью и сайт-галерея «Образы России» с инфографикой и викториной.</p>
+      <p class="about-body">Берусь за небольшие проекты для малого бизнеса: кафе, мастера, стартапы. Могу сделать лендинг, форму записи, бота для автоматизации.</p>
+      <ul class="skills-list">
+        <li>Telegram-боты</li>
+        <li>Сайты</li>
+        <li>Python</li>
+        <li>HTML/CSS/JS</li>
+        <li>Базы данных</li>
+        <li>Деплой</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="contact-section" id="contact">
+  <p class="section-label">Контакт</p>
+  <h2 class="contact-title">Есть задача?<br><em>Давай сделаем.</em></h2>
+  <div class="contact-links">
+    <a href="https://t.me/youngdofo" class="contact-link">
+      ✈ @youngdofo
+    </a>
+    <a href="mailto:matvey@example.com" class="contact-link">
+      ✉ Email
+    </a>
+  </div>
+  <div class="contact-bg-text">чудо</div>
+</div>
+
+<footer>
+  <span>Cas © 2025</span>
+  <span>Вайб-разработка · Под ключ</span>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
