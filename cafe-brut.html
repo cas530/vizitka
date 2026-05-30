@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кейс — Café Brut · Cas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0d0b;
+  --bg2:#161410;
+  --bg3:#1e1b16;
+  --card:#221f19;
+  --text:#f0ead8;
+  --muted:#7a7060;
+  --accent:#c8a96e;
+  --accent2:#e8c98a;
+  --border:rgba(200,169,110,0.15);
+  --red:#c0392b;
+  --green:#2ecc71;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Epilogue',sans-serif;
+  font-weight:300;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ─── CURSOR ─── */
+.cur{position:fixed;width:6px;height:6px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s}
+.cur-r{position:fixed;width:28px;height:28px;border:1px solid var(--accent);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.4;transition:width .2s,height .2s,opacity .2s}
+.cur-r.h{width:44px;height:44px;opacity:.15}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 56px;
+  border-bottom:1px solid transparent;
+  transition:border-color .3s,background .3s;
+}
+nav.scrolled{background:rgba(14,13,11,.9);backdrop-filter:blur(12px);border-color:var(--border)}
+.nav-back{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s}
+.nav-back:hover{color:var(--accent)}
+.nav-tag{font-size:12px;letter-spacing:.08em;color:var(--muted)}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 56px 80px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(200,169,110,.06) 0%, transparent 70%),
+    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(200,169,110,.02) 80px,rgba(200,169,110,.02) 81px),
+    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(200,169,110,.02) 80px,rgba(200,169,110,.02) 81px);
+}
+.hero-year{
+  position:absolute;top:50%;right:56px;transform:translateY(-50%);
+  font-family:'Playfair Display',serif;
+  font-size:clamp(160px,22vw,280px);
+  color:transparent;
+  -webkit-text-stroke:1px rgba(200,169,110,.06);
+  line-height:1;user-select:none;pointer-events:none;
+}
+.hero-label{
+  font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:20px;
+  opacity:0;animation:up .7s ease .2s forwards;
+}
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(48px,6.5vw,88px);
+  line-height:1.05;letter-spacing:-.02em;
+  max-width:780px;
+  opacity:0;animation:up .8s ease .4s forwards;
+}
+.hero-title span{color:var(--accent);font-style:italic}
+.hero-meta{
+  display:flex;gap:48px;margin-top:48px;
+  opacity:0;animation:up .8s ease .6s forwards;
+}
+.hero-meta-item label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.hero-meta-item span{font-size:14px;color:var(--text)}
+
+/* ─── SECTIONS ─── */
+section{padding:100px 56px}
+.s-label{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:56px;display:flex;align-items:center;gap:16px;
+}
+.s-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── BRIEF ─── */
+.brief-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
+.brief-title{font-family:'Playfair Display',serif;font-size:clamp(32px,3.5vw,48px);line-height:1.2;letter-spacing:-.02em;margin-bottom:24px}
+.brief-title em{color:var(--accent);font-style:italic}
+.brief-text{font-size:15px;color:var(--muted);line-height:1.9;margin-bottom:20px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tag{font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:2px;color:var(--muted)}
+
+.brief-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.bstat{background:var(--card);padding:36px 32px}
+.bstat-num{font-family:'Playfair Display',serif;font-size:48px;line-height:1;letter-spacing:-.03em;color:var(--accent2);margin-bottom:6px}
+.bstat-label{font-size:13px;color:var(--muted)}
+
+/* ─── PROBLEM / SOLUTION ─── */
+.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ps-card{background:var(--card);padding:48px}
+.ps-icon{font-size:32px;margin-bottom:24px}
+.ps-title{font-family:'Playfair Display',serif;font-size:22px;letter-spacing:-.01em;margin-bottom:16px}
+.ps-list{list-style:none}
+.ps-list li{font-size:14px;color:var(--muted);padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;line-height:1.6}
+.ps-list li::before{content:'→';color:var(--accent);flex-shrink:0;margin-top:1px}
+
+/* ─── INFOGRAPHICS ─── */
+.info-section{background:var(--bg2)}
+
+/* Flow */
+.flow{display:flex;align-items:center;gap:0;margin-bottom:64px;overflow-x:auto;padding-bottom:8px}
+.flow-step{
+  flex:1;min-width:140px;
+  background:var(--card);padding:28px 24px;position:relative;
+  text-align:center;
+}
+.flow-step::after{
+  content:'→';
+  position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+  color:var(--accent);font-size:18px;z-index:1;
+}
+.flow-step:last-child::after{display:none}
+.flow-num{font-family:'Playfair Display',serif;font-size:32px;color:var(--accent);opacity:.4;margin-bottom:8px}
+.flow-title{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
+.flow-sub{font-size:11px;color:var(--muted)}
+
+/* Bar chart */
+.chart-wrap{margin-bottom:64px}
+.chart-title{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:flex;align-items:center;gap:16px}
+.bar-label{font-size:13px;color:var(--muted);width:120px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:32px;background:rgba(200,169,110,.07);border-radius:2px;overflow:hidden;position:relative}
+.bar-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  width:0;transition:width 1.2s cubic-bezier(.16,1,.3,1);
+}
+.bar-val{font-size:13px;color:var(--accent2);width:40px;flex-shrink:0}
+
+/* Donut */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.donut-wrap{display:flex;align-items:center;gap:40px}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:14px}
+.legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:40px;padding-left:24px}
+.tl-item::before{content:'';position:absolute;left:-5px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg2);border:2px solid var(--accent)}
+.tl-day{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.tl-title{font-size:15px;font-weight:400;color:var(--text);margin-bottom:4px}
+.tl-desc{font-size:13px;color:var(--muted)}
+
+/* ─── RESULT ─── */
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:64px}
+.res-card{
+  background:var(--card);padding:48px 40px;
+  position:relative;overflow:hidden;
+}
+.res-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+}
+.res-num{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(40px,5vw,64px);
+  line-height:1;letter-spacing:-.03em;
+  color:var(--accent2);margin-bottom:8px;
+}
+.res-label{font-size:13px;color:var(--muted);line-height:1.6}
+.res-delta{
+  margin-top:16px;display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;letter-spacing:.05em;
+  padding:4px 10px;border-radius:2px;
+}
+.up{background:rgba(46,204,113,.1);color:#2ecc71}
+.down{background:rgba(192,57,43,.1);color:#e74c3c}
+
+/* Review strip */
+.review-strip{
+  background:var(--bg3);border:1px solid var(--border);
+  padding:40px 48px;display:flex;gap:48px;align-items:center;
+  border-radius:2px;
+}
+.review-quote{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:20px;line-height:1.5;letter-spacing:-.01em;
+  color:var(--text);flex:1;
+}
+.review-author{flex-shrink:0;text-align:right}
+.review-name{font-size:14px;font-weight:400;color:var(--text)}
+.review-role{font-size:12px;color:var(--muted);margin-top:2px}
+.stars{color:var(--accent);font-size:14px;margin-bottom:8px}
+
+/* ─── TECH ─── */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.tech-card{background:var(--card);padding:32px;text-align:center}
+.tech-icon{font-size:28px;margin-bottom:12px}
+.tech-name{font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.tech-desc{font-size:12px;color:var(--muted)}
+
+/* ─── CTA ─── */
+.cta-section{
+  background:var(--accent);
+  padding:100px 56px;
+  text-align:center;
+}
+.cta-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(36px,5vw,64px);
+  color:var(--bg);line-height:1.1;
+  letter-spacing:-.02em;margin-bottom:32px;
+}
+.cta-title em{font-style:italic;opacity:.6}
+.cta-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 36px;background:var(--bg);color:var(--accent);
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+  text-decoration:none;border-radius:2px;
+  transition:opacity .2s;
+}
+.cta-btn:hover{opacity:.85}
+
+/* ─── FLOATING TG ─── */
+.float-tg{
+  position:fixed;bottom:24px;right:24px;
+  width:52px;height:52px;
+  background:var(--accent);
+  border:none;border-radius:50%;
+  cursor:pointer;z-index:999;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--bg);
+  box-shadow:0 4px 20px rgba(200,169,110,.35);
+  transition:transform .2s,box-shadow .2s;
+  text-decoration:none;
+}
+.float-tg:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(200,169,110,.5)}
+
+/* ─── FOOTER ─── */
+footer{
+  padding:28px 56px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;color:var(--muted);letter-spacing:.04em;
+}
+
+/* ─── REVEAL ─── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.reveal.on{opacity:1;transform:none}
+
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ─── MOBILE ─── */
+@media(max-width:768px){
+  nav{padding:20px 24px}
+  .hero{padding:0 24px 60px}
+  .hero-year{font-size:100px;right:24px}
+  section{padding:60px 24px}
+  .brief-grid,.ps-grid,.two-col,.result-grid,.tech-grid{grid-template-columns:1fr}
+  .brief-stats{grid-template-columns:1fr 1fr}
+  .hero-meta{flex-wrap:wrap;gap:24px}
+  .flow{gap:2px}
+  .flow-step::after{display:none}
+  .review-strip{flex-direction:column;gap:24px}
+  .review-author{text-align:left}
+  footer{flex-direction:column;gap:8px;text-align:center;padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="cur" id="C"></div>
+<div class="cur-r" id="CR"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-back">← Портфолио</a>
+  <span class="nav-tag">Кейс № 01 · 2025</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-year">01</div>
+  <p class="hero-label">Кейс · Сайт для кафе</p>
+  <h1 class="hero-title">
+    Café Brut —<br>
+    <span>сайт, который продаёт</span><br>
+    столики сам
+  </h1>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><label>Клиент</label><span>Café Brut, Москва</span></div>
+    <div class="hero-meta-item"><label>Срок</label><span>3 дня</span></div>
+    <div class="hero-meta-item"><label>Бюджет</label><span>$120</span></div>
+    <div class="hero-meta-item"><label>Стек</label><span>HTML · CSS · JS</span></div>
+  </div>
+</section>
+
+<!-- BRIEF -->
+<section>
+  <p class="s-label reveal">Задача</p>
+  <div class="brief-grid">
+    <div>
+      <h2 class="brief-title reveal">Кафе без сайта теряло <em>клиентов</em> каждый день</h2>
+      <p class="brief-text reveal">Владелец кафе в центре Москвы вёл запись через личный WhatsApp. Люди искали кафе в Google, не находили сайт — и уходили к конкурентам.</p>
+      <p class="brief-text reveal">Нужен был сайт за минимум денег, с онлайн-записью и меню, который работает на мобильных и грузится быстро.</p>
+      <div class="tag-row reveal">
+        <span class="tag">Лендинг</span>
+        <span class="tag">Онлайн-запись</span>
+        <span class="tag">Меню</span>
+        <span class="tag">Мобайл</span>
+        <span class="tag">SEO</span>
+      </div>
+    </div>
+    <div class="brief-stats reveal">
+      <div class="bstat">
+        <div class="bstat-num">0</div>
+        <div class="bstat-label">Онлайн-присутствие<br>до проекта</div>
+      </div>
+      <div class="bstat">
+        <div class="bstat-num">~40</div>
+        <div class="bstat-label">Запросов в месяц<br>терялось без сайта</div>
+      </div>
+      <div class="bstat">
+        <div class="bstat-num">3</div>
+        <div class="bstat-label">Дня от брифа<br>до деплоя</div>
+      </div>
+      <div class="bstat">
+        <div class="bstat-num">$120</div>
+        <div class="bstat-label">Стоимость<br>под ключ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section style="background:var(--bg2);padding-top:80px;padding-bottom:80px">
+  <p class="s-label reveal">Проблема и решение</p>
+  <div class="ps-grid reveal">
+    <div class="ps-card">
+      <div class="ps-icon">✗</div>
+      <h3 class="ps-title">Было</h3>
+      <ul class="ps-list">
+        <li>Запись только через WhatsApp вручную</li>
+        <li>Нет сайта — Google не знал о кафе</li>
+        <li>Меню в виде фото в Instagram</li>
+        <li>Нет кнопки "забронировать столик"</li>
+        <li>Владелец тратил 2 часа в день на переписку</li>
+      </ul>
+    </div>
+    <div class="ps-card">
+      <div class="ps-icon">✓</div>
+      <h3 class="ps-title">Стало</h3>
+      <ul class="ps-list">
+        <li>Форма бронирования — заявка летит в Telegram</li>
+        <li>Сайт проиндексирован, появился в картах</li>
+        <li>Интерактивное меню с фильтрами по категориям</li>
+        <li>Кнопка брони на каждом экране</li>
+        <li>Владелец тратит 10 минут — только подтверждает</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- INFOGRAPHICS -->
+<section class="info-section">
+  <p class="s-label reveal">Аналитика и процесс</p>
+
+  <!-- Flow -->
+  <p class="chart-title reveal">Как работает сайт — путь пользователя</p>
+  <div class="flow reveal">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-title">Google</div>
+      <div class="flow-sub">Находит сайт</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-title">Главная</div>
+      <div class="flow-sub">Атмосфера кафе</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-title">Меню</div>
+      <div class="flow-sub">Смотрит блюда</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-title">Бронь</div>
+      <div class="flow-sub">Заполняет форму</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-title">Telegram</div>
+      <div class="flow-sub">Владелец подтверждает</div>
+    </div>
+  </div>
+
+  <!-- Bar chart -->
+  <div class="chart-wrap reveal">
+    <p class="chart-title">Откуда приходят клиенты (после запуска сайта)</p>
+    <div class="bars" id="bars">
+      <div class="bar-row"><span class="bar-label">Google</span><div class="bar-track"><div class="bar-fill" data-w="72"></div></div><span class="bar-val">72%</span></div>
+      <div class="bar-row"><span class="bar-label">Яндекс</span><div class="bar-track"><div class="bar-fill" data-w="18"></div></div><span class="bar-val">18%</span></div>
+      <div class="bar-row"><span class="bar-label">Instagram</span><div class="bar-track"><div class="bar-fill" data-w="7"></div></div><span class="bar-val">7%</span></div>
+      <div class="bar-row"><span class="bar-label">Прямой</span><div class="bar-track"><div class="bar-fill" data-w="3"></div></div><span class="bar-val">3%</span></div>
+    </div>
+  </div>
+
+  <!-- Donut + Timeline -->
+  <div class="two-col reveal">
+    <div class="donut-wrap">
+      <svg class="donut-svg" width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(200,169,110,.1)" stroke-width="24"/>
+        <!-- Segments: mobile 68%, desktop 24%, tablet 8% -->
+        <circle cx="80" cy="80" r="60" fill="none" stroke="#c8a96e" stroke-width="24"
+          stroke-dasharray="256.7 120.6" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+        <circle cx="80" cy="80" r="60" fill="none" stroke="#e8c98a" stroke-width="24"
+          stroke-dasharray="90.5 286.8" stroke-dashoffset="-256.7" transform="rotate(-90 80 80)"/>
+        <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(200,169,110,.35)" stroke-width="24"
+          stroke-dasharray="30.2 347.1" stroke-dashoffset="-347.2" transform="rotate(-90 80 80)"/>
+        <text x="80" y="75" text-anchor="middle" fill="#f0ead8" font-family="Playfair Display,serif" font-size="22">68%</text>
+        <text x="80" y="95" text-anchor="middle" fill="#7a7060" font-family="Epilogue,sans-serif" font-size="11">мобайл</text>
+      </svg>
+      <div class="donut-legend">
+        <p class="chart-title" style="margin-bottom:16px">Устройства посетителей</p>
+        <div class="legend-item"><div class="legend-dot" style="background:#c8a96e"></div>Мобильные — 68%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e8c98a"></div>Десктоп — 24%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(200,169,110,.35)"></div>Планшет — 8%</div>
+      </div>
+    </div>
+
+    <div>
+      <p class="chart-title" style="margin-bottom:24px">Хронология проекта</p>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-day">День 1</div>
+          <div class="tl-title">Бриф и структура</div>
+          <div class="tl-desc">Собрал требования, нарисовал структуру страниц, согласовал с клиентом</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-day">День 2</div>
+          <div class="tl-title">Вёрстка и логика</div>
+          <div class="tl-desc">Собрал всё через вайб-кодинг, подключил форму с уведомлением в Telegram</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-day">День 3</div>
+          <div class="tl-title">Деплой и SEO</div>
+          <div class="tl-desc">Деплой на Vercel, настройка мета-тегов, добавление в Google Карты</div>
+        </div>
+        <div class="tl-item" style="margin-bottom:0">
+          <div class="tl-day">Неделя 2</div>
+          <div class="tl-title">Первые брони</div>
+          <div class="tl-desc">Кафе получило 11 онлайн-броней за первые 7 дней</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section>
+  <p class="s-label reveal">Результаты</p>
+  <div class="result-grid reveal">
+    <div class="res-card">
+      <div class="res-num">+340%</div>
+      <div class="res-label">Рост онлайн-брони<br>за первый месяц</div>
+      <span class="res-delta up">↑ vs WhatsApp</span>
+    </div>
+    <div class="res-card">
+      <div class="res-num">1.8s</div>
+      <div class="res-label">Скорость загрузки<br>на мобильных</div>
+      <span class="res-delta up">↑ Top 15% сайтов</span>
+    </div>
+    <div class="res-card">
+      <div class="res-num">−2ч</div>
+      <div class="res-label">Экономия времени<br>владельца в день</div>
+      <span class="res-delta up">↑ автоматизация</span>
+    </div>
+  </div>
+
+  <div class="review-strip reveal">
+    <p class="review-quote">«Сделали за 3 дня то, о чём я думал полгода. Форма бронирования реально работает, клиенты пишут что нашли нас в Google.»</p>
+    <div class="review-author">
+      <div class="stars">★★★★★</div>
+      <div class="review-name">Антон К.</div>
+      <div class="review-role">Владелец Café Brut</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH -->
+<section style="background:var(--bg2)">
+  <p class="s-label reveal">Технологии</p>
+  <div class="tech-grid reveal">
+    <div class="tech-card">
+      <div class="tech-icon">⚡</div>
+      <div class="tech-name">HTML / CSS / JS</div>
+      <div class="tech-desc">Без фреймворков — быстро и легко</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">▲</div>
+      <div class="tech-name">Vercel</div>
+      <div class="tech-desc">Деплой за минуту, CDN по всему миру</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">✈</div>
+      <div class="tech-name">Telegram API</div>
+      <div class="tech-desc">Заявки с формы прямо в чат владельца</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">◎</div>
+      <div class="tech-name">Vibe Coding</div>
+      <div class="tech-desc">AI-ассистент ускорил сборку в 4 раза</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2 class="cta-title">Нужен похожий сайт?<br><em>Напиши — сделаем.</em></h2>
+  <a href="https://t.me/youngdofo" class="cta-btn">Написать в Telegram →</a>
+</div>
+
+  <a href="https://t.me/youngdofo" class="float-tg" target="_blank" title="Написать в Telegram">✈</a>
+
+<footer>
+  <span>Cas · Портфолио · 2025</span>
+  <span>Кейс № 01 — Café Brut</span>
+</footer>
+
+<script>
+// Cursor
+const C=document.getElementById('C'),CR=document.getElementById('CR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;C.style.left=mx+'px';C.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;CR.style.left=rx+'px';CR.style.top=ry+'px';requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>CR.classList.add('h'));el.addEventListener('mouseleave',()=>CR.classList.remove('h'))});
+
+// Nav scroll
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>60));
+
+// Reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('on'),i*70)});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Bars animate
+const barsObs=new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting){
+    document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%'});
+    barsObs.disconnect();
+  }
+},{threshold:.3});
+barsObs.observe(document.getElementById('bars'));
+</script>
+</body>
+</html>
